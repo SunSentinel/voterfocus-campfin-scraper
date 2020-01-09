@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from collections import OrderedDict
 from .base import VoterFocusScraper
 
-from .utils import get_name, get_party, strip_breaks, strip_spaces, toDate, CashtoFloat, get_in_parenthesis
+from .utils import *
 
 
 class Election(VoterFocusScraper):
@@ -74,7 +74,20 @@ class Election(VoterFocusScraper):
         Downloads all campaign finance data for each candidate in the election and saves them locally.
         """
 
+        if self.CURRENT_DIR.parent.joinpath("data", self.county).exists():
+            pass
+        else:
+            self.CURRENT_DIR.parent.joinpath("data", self.county).mkdir()
+
+
         for candidate in self.candidates:
+
+            race_slug = slugify(candidate["office"])
+
+            if self.CURRENT_DIR.parent.joinpath("data", self.county, race_slug).exists():
+                pass
+            else:
+                self.CURRENT_DIR.parent.joinpath("data", self.county, race_slug).mkdir()
             
             # Build download url
             dl_link = "https://www.voterfocus.com/CampaignFinance/export.php?op=CFINANCE&cand_id={0}&dhc=0&county={1}".format(candidate["id"], self.county)
@@ -82,8 +95,22 @@ class Election(VoterFocusScraper):
             # Download file
             dl_file = requests.get(dl_link)
 
-            save_file = self.data_dir.joinpath("{0}.csv".format(slugify(candidate["name"])))
+            save_file = self.data_dir.joinpath(
+                self.county,
+                race_slug, 
+                "{0}.csv".format(slugify(candidate["name"])
+                )
+            )
 
             with open(save_file, 'wb') as f:
                 f.write(dl_file.content)
 
+
+    def download_summaries(self):
+        save_file = self.data_dir.joinpath("{0}_summaries.csv".format(self.county))
+
+        keys = self.candidates[0].keys()
+        with open(save_file, 'w') as outf:
+            dw = csv.DictWriter(outf, keys)
+            dw.writeheader()
+            dw.writerows(self.candidates)
