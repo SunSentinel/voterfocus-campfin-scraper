@@ -6,6 +6,8 @@ class VoterFocusScraper(object):
     CURRENT_DIR = pathlib.Path(__file__).parent
     
     def __init__(self, county=None, election_id=None, data_dir=None, BASE_URL=None):
+        self.election_id = election_id
+
 
         if not county:
             raise NotImplementedError("County not specified. Pass in a lowercase county name with the 'county' parameter.")
@@ -13,11 +15,10 @@ class VoterFocusScraper(object):
         self.county = county
 
         
-        if not election_id:
+        if not self.election_id:
             self.BASE_URL = "https://www.voterfocus.com/CampaignFinance/candidate_pr.php?c=" + county
         else: 
             self.BASE_URL = "https://www.voterfocus.com/CampaignFinance/candidate_pr.php?c=" + county + "&el=" + election_id
-            self.election_id = election_id
 
 
         # Make sure there's a place to save the data. If not, make it.

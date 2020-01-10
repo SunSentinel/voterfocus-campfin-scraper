@@ -14,9 +14,13 @@ from .utils import *
 
 class Election(VoterFocusScraper):
 
-    def __init__(self, election_id=None, *args, **kwargs):
+    """
+    A class that provides information about an election as well as candidates in bulk.
+
+    """
+
+    def __init__(self, *args, **kwargs):
         super(Election, self).__init__(*args, **kwargs)
-        self.election_id = election_id
         self.candidates = self._get_candidates()
 
 
